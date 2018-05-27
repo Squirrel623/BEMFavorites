@@ -2,12 +2,11 @@ import $ from 'jquery';
 import Bem from 'bem';
 import find from 'lodash-es/find';
 import filter from 'lodash-es/filter';
-import includes from 'lodash-es/includes';
-import remove from 'lodash-es/remove';
 import forEach from 'lodash-es/foreach';
 
 import { FavoritesStore } from './favorites-store';
-import { createSingleButtonContextMenu, bemInitPromise } from './util';
+import { createSingleButtonContextMenu } from './util';
+import { createFavoritesDialog } from './bem-favorites-dialog';
 
 let favoritesStore: FavoritesStore;
 
@@ -114,69 +113,6 @@ function addFavsLink() {
       'text-decoration': 'underline',
       'margin-right': '5px'
     })
-    .click(openFavsDialog)
+    .click(() => createFavoritesDialog(favoritesStore))
     .insertAfter(settingsLink);
-}
-
-function openFavsDialog() {
-  const favsDialogContent = $('body').dialogWindow({
-    title: 'BerryEmote Favorites',
-    uid: 'berryEmoteFavorites',
-    center: true,
-  });
-
-  const results = $('<div/>')
-    .addClass('berryemotes-favorites-results')
-    .css({
-      width: '500px',
-      height: '500px',
-      'overflow-y': 'scroll',
-    })
-    .appendTo(favsDialogContent);
-
-  results.on('click', '.berryemote', (event) => {
-    if (Bem.lastFocus) {
-      const $emote = $(event.currentTarget);
-      const id = parseInt($emote.attr('emote_id'), 10);
-      const emote = Bem.emotes[id];
-      Bem.insertAtCursor(Bem.lastFocus, `[](/${emote.names[0]})`);
-
-      favsDialogContent.window.close();
-      $(document.body).find('.dialogWindow.berrymotes').remove();
-      Bem.lastFocus.focus();
-    }
-  });
-
-  results.on('contextmenu', '.berryemote', (event) => {
-    const $emote = $(event.target);
-    const emoteId = parseInt($emote.attr('emote_id'), 10);
-
-    const onClick = () => {
-      favoritesStore.removeEmote(emoteId);
-      $emote.remove();
-
-      return true;
-    };
-
-    createSingleButtonContextMenu({
-      uid: 'bemRemoveFavorite',
-      top: event.pageY,
-      left: event.pageX,
-      text: 'Remove From Favorites',
-      onClick,
-    });
-
-    return false;
-  });
-
-  const favorites = favoritesStore.getFavorites();
-  forEach(favorites, (favorite) => {
-    const $emote = $('<span/>')
-      .css('margin', '2px')
-      .append(Bem.getEmoteHtml(favorite));
-    Bem.postEmoteEffects($emote, true);
-    results.append($emote);
-  });
-
-  favsDialogContent.window.center();
 }
