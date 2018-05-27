@@ -9,11 +9,12 @@ import forEach from 'lodash-es/foreach';
 import { FavoritesStore } from './favorites-store';
 import { createSingleButtonContextMenu, bemInitPromise } from './util';
 
-function showResults(
+function showResults({resultsElement, favoritesStore, start, end}: {
   resultsElement: JQuery,
   favoritesStore: FavoritesStore,
   start: number,
-  end: number) {
+  end: number
+}) {
   resultsElement.empty();
 
   const favorites = favoritesStore.getFavorites();
@@ -26,52 +27,7 @@ function showResults(
   }
 }
 
-function createResults(dialogContent: DialogContents, favoritesStore: FavoritesStore, requestClose: () => void) {
-  const pageSize = 50;
-  let page = 0;
-  const showResultsForCurrentPage = () => {
-    showResults(results, favoritesStore, page * pageSize, (page + 1) * pageSize);
-  };
-
-  const prevClick = () => {
-    if (page > 0) {
-      page--;
-      showResultsForCurrentPage();
-    }
-  };
-  const nextClick = () => {
-    const numFavorites = favoritesStore.getFavorites().length;
-    const maxIndexShown = (page + 1) * pageSize;
-
-    if (numFavorites > maxIndexShown) {
-      page++;
-      showResultsForCurrentPage();
-    }
-  };
-
-  $('<span/>')
-    .text('< Prev')
-    .addClass('bemf_prev_page')
-    .css({
-      cursor: 'pointer',
-      'text-decoration': 'underline',
-      'user-select': 'none',
-    })
-    .click(prevClick)
-    .appendTo(dialogContent);
-
-  $('<span/>')
-    .text('Next >')
-    .addClass('bemf_next_page')
-    .css({
-      cursor: 'pointer',
-      'text-decoration': 'underline',
-      'margin-left': '5px',
-      'user-select': 'none',
-    })
-    .click(nextClick)
-    .appendTo(dialogContent);
-
+function createResultsElement(dialogContent: DialogContents, favoritesStore: FavoritesStore, requestClose: () => void) {
   const results = $('<div/>')
     .addClass('berryemotes-favorites-results')
     .css({
@@ -115,7 +71,7 @@ function createResults(dialogContent: DialogContents, favoritesStore: FavoritesS
     return false;
   });
 
-  showResultsForCurrentPage();
+  return results;
 }
 
 export function createFavoritesDialog(favoritesStore: FavoritesStore) {
@@ -125,10 +81,63 @@ export function createFavoritesDialog(favoritesStore: FavoritesStore) {
     center: true,
   });
 
-  createResults(dialogContent, favoritesStore, () => {
+  const pageSize = 50;
+  let page = 0;
+  let resultsElement: JQuery;
+
+  const showResultsForCurrentPage = () => {
+    showResults({
+      resultsElement,
+      favoritesStore,
+      start: page * pageSize,
+      end: (page + 1) * pageSize,
+    });
+  };
+
+  const prevClick = () => {
+    if (page > 0) {
+      page--;
+      showResultsForCurrentPage();
+    }
+  };
+  const nextClick = () => {
+    const numFavorites = favoritesStore.getFavorites().length;
+    const maxIndexShown = (page + 1) * pageSize;
+
+    if (numFavorites > maxIndexShown) {
+      page++;
+      showResultsForCurrentPage();
+    }
+  };
+
+  $('<span/>')
+    .text('< Prev')
+    .addClass('bemf_prev_page')
+    .css({
+      cursor: 'pointer',
+      'text-decoration': 'underline',
+      'user-select': 'none',
+    })
+    .click(prevClick)
+    .appendTo(dialogContent);
+
+  $('<span/>')
+    .text('Next >')
+    .addClass('bemf_next_page')
+    .css({
+      cursor: 'pointer',
+      'text-decoration': 'underline',
+      'margin-left': '5px',
+      'user-select': 'none',
+    })
+    .click(nextClick)
+    .appendTo(dialogContent);
+
+  resultsElement = createResultsElement(dialogContent, favoritesStore, () => {
     dialogContent.window.close();
     $(document.body).find('.dialogWindow.berrymotes').remove();
   });
+  showResultsForCurrentPage();
 
   dialogContent.window.center();
 }
