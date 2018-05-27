@@ -79,21 +79,6 @@ function addImportExportOptions({dialogContent, favoritesStore, requestReload}: 
   favoritesStore: FavoritesStore,
   requestReload: () => void
 }) {
-  const onImport = () => {
-    // Nothing
-  };
-
-  const onExport = () => {
-    const serializedFavorites = favoritesStore.serializeFavorites();
-    const blob = new Blob([serializedFavorites], { type: 'text/plain' });
-
-    const anchor = document.createElement('a');
-    anchor.download = 'bem-favorites.blob';
-    anchor.href = window.URL.createObjectURL(blob);
-    anchor.dataset.downloadurl = ['text/plain', anchor.download, anchor.href].join(':');
-    anchor.click();
-  };
-
   const exportButton = $('<div/>')
     .text('Export')
     .css({
