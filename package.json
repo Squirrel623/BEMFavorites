@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack",
+    "prod": "webpack --config webpack.prod.config.js",
     "lint": "tslint -c tslint.json 'src/**/*.ts'"
   },
   "devDependencies": {
@@ -15,6 +16,7 @@
     "ts-loader": "^4.3.0",
     "tslint": "^5.10.0",
     "typescript": "^2.8.3",
+    "uglifyjs-webpack-plugin": "^1.2.5",
     "webpack": "^4.9.1",
     "webpack-cli": "^2.1.4"
   },

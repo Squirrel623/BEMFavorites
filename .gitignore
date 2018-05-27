@@ -1,2 +1,3 @@
-dist/
+dist/**
+!dist/bem-favorites.min.js
 node_modules/
