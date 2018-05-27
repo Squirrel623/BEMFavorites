@@ -39,12 +39,21 @@ const observer = new MutationObserver((mutations) => {
   });
 
   if (bemDialogAddMutation !== undefined) {
-    console.log('BEM Opened');
-    modifyBemSearchInput();
-    addFavsLink();
+    onBerryEmotesDialogOpened();
   }
 
-  forEach(bemDialogEmoteMutations, (mutation) => {
+  if (bemDialogEmoteMutations.length > 0) {
+    onBerryEmotesResultsPopulated(bemDialogEmoteMutations);
+  }
+});
+
+function onBerryEmotesDialogOpened() {
+  modifyBemSearchInput();
+  addFavsLink();
+}
+
+function onBerryEmotesResultsPopulated(mutations: MutationRecord[]) {
+  forEach(mutations, (mutation) => {
     const emoteElement = (mutation.addedNodes[0].childNodes[0] as HTMLElement);
     const possibleEmoteId = emoteElement.getAttribute('emote_id');
 
@@ -71,7 +80,7 @@ const observer = new MutationObserver((mutations) => {
       return false;
     });
   });
-});
+}
 
 function getBemDialog() {
   const dialog = $('body').find('.berrymotes .dialogContent');
