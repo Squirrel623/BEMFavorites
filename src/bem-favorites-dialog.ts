@@ -74,11 +74,68 @@ function createResultsElement(dialogContent: DialogContents, favoritesStore: Fav
   return results;
 }
 
+function addImportExportOptions({dialogContent, favoritesStore, requestReload}: {
+  dialogContent: DialogContents,
+  favoritesStore: FavoritesStore,
+  requestReload: () => void
+}) {
+  const onImport = () => {
+    // Nothing
+  };
+
+  const onExport = () => {
+    const serializedFavorites = favoritesStore.serializeFavorites();
+    const blob = new Blob([serializedFavorites], { type: 'text/plain' });
+
+    const anchor = document.createElement('a');
+    anchor.download = 'bem-favorites.blob';
+    anchor.href = window.URL.createObjectURL(blob);
+    anchor.dataset.downloadurl = ['text/plain', anchor.download, anchor.href].join(':');
+    anchor.click();
+  };
+
+  const exportButton = $('<div/>')
+    .text('Export')
+    .css({
+      float: 'right',
+      cursor: 'pointer',
+      'text-decoration': 'underline',
+      'user-select': 'none',
+      'margin-left': '5px',
+    })
+    .click(favoritesStore.exportFavorites.bind(favoritesStore))
+    .appendTo(dialogContent);
+
+  const importButton = $('<div/>')
+    .text('Import')
+    .css({
+      float: 'right',
+      cursor: 'pointer',
+      'text-decoration': 'underline',
+      'user-select': 'none',
+    })
+    .click(() => {
+      favoritesStore.importFavorites().then((importSuccessful) => {
+        if (importSuccessful) {
+          requestReload();
+        }
+      });
+    })
+    .appendTo(dialogContent);
+}
+
 export function createFavoritesDialog(favoritesStore: FavoritesStore) {
+  // Because we are creating a new dialog when we import that means
+  // the user could close the main dialog before the import dialog is
+  // closed. We don't want to try to update the results unless the main
+  // dialog is still open
+  let resultsOpen = true;
+
   const dialogContent = $('body').dialogWindow({
     title: 'BerryEmote Favorites',
     uid: 'berryEmoteFavorites',
     center: true,
+    onClose: () => { resultsOpen = false; }
   });
 
   const pageSize = 50;
@@ -93,6 +150,19 @@ export function createFavoritesDialog(favoritesStore: FavoritesStore) {
       end: (page + 1) * pageSize,
     });
   };
+
+  addImportExportOptions({
+    dialogContent,
+    favoritesStore,
+    requestReload: () => {
+      if (!resultsOpen) {
+        return;
+      }
+
+      page = 0;
+      showResultsForCurrentPage();
+    },
+  });
 
   const prevClick = () => {
     if (page > 0) {
@@ -134,6 +204,7 @@ export function createFavoritesDialog(favoritesStore: FavoritesStore) {
     .appendTo(dialogContent);
 
   resultsElement = createResultsElement(dialogContent, favoritesStore, () => {
+    resultsOpen = false;
     dialogContent.window.close();
     $(document.body).find('.dialogWindow.berrymotes').remove();
   });
