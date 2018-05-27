@@ -3,7 +3,7 @@ import $ from 'jquery';
 
 import isArray from 'lodash-es/isArray';
 import filter from 'lodash-es/filter';
-import forEach from 'lodash-es/foreach';
+import forEach from 'lodash-es/forEach';
 import map from 'lodash-es/map';
 import find from 'lodash-es/find';
 import remove from 'lodash-es/remove';

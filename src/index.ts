@@ -4,7 +4,7 @@ import find from 'lodash-es/find';
 import filter from 'lodash-es/filter';
 import includes from 'lodash-es/includes';
 import remove from 'lodash-es/remove';
-import forEach from 'lodash-es/foreach';
+import forEach from 'lodash-es/forEach';
 
 import { StartBemFavorites } from './bem-favorites';
 import { bemInitPromise } from './util';

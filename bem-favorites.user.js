@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name       BEMFavorites
-// @version    0.4
+// @version    0.5
 // @author     Squirrel623
 // @description  Add a favorites section to Berryemotes
 // @match      http://www.berrytube.tv/*

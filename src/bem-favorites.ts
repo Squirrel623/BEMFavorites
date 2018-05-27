@@ -2,7 +2,7 @@ import $ from 'jquery';
 import Bem from 'bem';
 import find from 'lodash-es/find';
 import filter from 'lodash-es/filter';
-import forEach from 'lodash-es/foreach';
+import forEach from 'lodash-es/forEach';
 
 import { FavoritesStore } from './favorites-store';
 import { createSingleButtonContextMenu } from './util';
