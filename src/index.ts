@@ -6,7 +6,7 @@ import includes from 'lodash-es/includes';
 import remove from 'lodash-es/remove';
 import forEach from 'lodash-es/foreach';
 
-import { FavoritesStore } from './favorites';
+import { FavoritesStore } from './favorites-store';
 import { createSingleButtonContextMenu, bemInitPromise } from './util';
 
 console.warn('BEMFavories loaded');
