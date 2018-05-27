@@ -1,19 +1,29 @@
 import Bem from 'bem';
 
-export function getBemInitPromise(): Promise<Bem.Emote[]> {
-  return new Promise((resolve) => {
-    if (typeof Bem.emotes !== 'undefined') {
+function getBemInitPromise(): Promise<Bem.Emote[]> {
+  const maxIterations = 200;
+  let iterations = 0;
+
+  return new Promise((resolve, reject) => {
+    if (Bem && typeof Bem.emotes !== 'undefined') {
       return resolve(Bem.emotes);
     }
 
     const intervalId = setInterval(() => {
-      if (typeof Bem.emotes !== 'undefined') {
+      iterations++;
+      if (iterations > maxIterations) {
+        reject(new Error('Max waiting iterations reached. Is Berrymotes installed?'));
+      }
+
+      if (Bem && typeof Bem.emotes !== 'undefined') {
         clearInterval(intervalId);
         resolve(Bem.emotes);
       }
     }, 100);
   });
 }
+
+export const bemInitPromise = getBemInitPromise();
 
 export interface ContextMenuArgs {
   uid: string;

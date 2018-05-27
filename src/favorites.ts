@@ -8,7 +8,6 @@ import find from 'lodash-es/find';
 import remove from 'lodash-es/remove';
 
 import { get, set, clear } from './settings';
-import { getBemInitPromise } from './util';
 
 const favoritesStorageKey = 'bemFavorites';
 
@@ -27,97 +26,67 @@ function getNameToEmoteIndexMap(emotes: Bem.Emote[]): {[index: string]: number} 
 }
 
 export class FavoritesStore {
-  private allEmotesPromise: Promise<Bem.Emote[]>;
-  private emoteInitPromise: Promise<Bem.Emote[]>;
-
-  private allEmotes?: Bem.Emote[];
-  private favoriteEmotes?: Bem.Emote[];
+  private favoriteEmotes: Bem.Emote[];
 
   constructor() {
-    this.allEmotesPromise = getBemInitPromise().then((emotes) => {
-      this.allEmotes = emotes;
-      return emotes;
-    });
-
-    this.emoteInitPromise = this.allEmotesPromise.then((emotes) => {
-      let serializedFavorites = get<SerializedFavorites>(favoritesStorageKey);
-      if (serializedFavorites === null) {
-        serializedFavorites = [];
-      }
-
-      const nameToEmoteIndexMap = getNameToEmoteIndexMap(emotes);
-      const favorites: Bem.Emote[] = [];
-
-      forEach(serializedFavorites, (emoteNames) => {
-        if (!isArray(emoteNames) || emoteNames.length < 1) {
-          throw new Error('Badly formed serialization');
-        }
-
-        let emote: Bem.Emote|undefined;
-        for (let i = 0; i < emoteNames.length; i++) {
-          emote = emotes[nameToEmoteIndexMap[emoteNames[i]]];
-          if (emote !== undefined) {
-            break;
-          }
-        }
-
-        if (emote !== undefined) {
-          favorites.push(emote);
-        }
-      });
-
-      this.favoriteEmotes = favorites;
-      return this.favoriteEmotes;
-    });
-  }
-
-  public getFavorites(): Promise<ReadonlyArray<Readonly<Bem.Emote>>> {
-    if (this.favoriteEmotes !== undefined) {
-      return Promise.resolve(this.favoriteEmotes);
+    if (!Bem || !Bem.emotes) {
+      throw new Error('Berrymotes not installed or initialized');
     }
 
-    return this.emoteInitPromise;
+    let serializedFavorites = get<SerializedFavorites>(favoritesStorageKey);
+    if (serializedFavorites === null) {
+      serializedFavorites = [];
+    }
+
+    const nameToEmoteIndexMap = getNameToEmoteIndexMap(Bem.emotes);
+    const favorites: Bem.Emote[] = [];
+
+    forEach(serializedFavorites, (emoteNames) => {
+      if (!isArray(emoteNames) || emoteNames.length < 1) {
+        throw new Error('Badly formed serialization');
+      }
+
+      let emote: Bem.Emote|undefined;
+      for (let i = 0; i < emoteNames.length; i++) {
+        emote = Bem.emotes[nameToEmoteIndexMap[emoteNames[i]]];
+        if (emote !== undefined) {
+          break;
+        }
+      }
+
+      if (emote !== undefined) {
+        favorites.push(emote);
+      }
+    });
+
+    this.favoriteEmotes = favorites;
   }
 
-  public addEmote(emoteId: number): Promise<boolean> {
-    return this.emoteInitPromise.then(() => {
-      if (this.allEmotes === undefined || this.favoriteEmotes === undefined) {
-        throw new Error('Something really went wrong');
-      }
-
-      if (find(this.favoriteEmotes, (favoriteEmote: Bem.Emote) => favoriteEmote.id === emoteId)) {
-        return false;
-      }
-
-      this.favoriteEmotes.push(this.allEmotes[emoteId]);
-      this.saveFavorites();
-
-      return true;
-    });
+  public getFavorites(): ReadonlyArray<Readonly<Bem.Emote>> {
+    return this.favoriteEmotes;
   }
 
-  public removeEmote(emoteId: number): Promise<boolean> {
-    return this.emoteInitPromise.then(() => {
-      if (this.allEmotes === undefined || this.favoriteEmotes === undefined) {
-        throw new Error('Something really went wrong');
-      }
+  public addEmote(emoteId: number): boolean {
+    if (find(this.favoriteEmotes, (favoriteEmote: Bem.Emote) => favoriteEmote.id === emoteId)) {
+      return false;
+    }
 
-      const removedElements = remove(this.favoriteEmotes, (favoriteEmote) => favoriteEmote.id === emoteId);
-      this.saveFavorites();
+    this.favoriteEmotes.push(Bem.emotes[emoteId]);
+    this.saveFavorites();
 
-      return removedElements.length > 0;
-    });
+    return true;
   }
 
-  public clearFavorites(): Promise<void> {
-    return this.emoteInitPromise.then(() => {
-      if (this.allEmotes === undefined || this.favoriteEmotes === undefined) {
-        throw new Error('Something really went wrong');
-      }
+  public removeEmote(emoteId: number): boolean {
+    const removedElements = remove(this.favoriteEmotes, (favoriteEmote) => favoriteEmote.id === emoteId);
+    this.saveFavorites();
 
-      this.favoriteEmotes = [];
-      this.saveFavorites();
-    });
+    return removedElements.length > 0;
+  }
+
+  public clearFavorites(): void {
+    this.favoriteEmotes = [];
+    this.saveFavorites();
   }
 
   private saveFavorites() {

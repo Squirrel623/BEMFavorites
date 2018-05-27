@@ -7,11 +7,11 @@ import remove from 'lodash-es/remove';
 import forEach from 'lodash-es/foreach';
 
 import { FavoritesStore } from './favorites';
-import { createSingleButtonContextMenu } from './util';
+import { createSingleButtonContextMenu, bemInitPromise } from './util';
 
 console.warn('BEMFavories loaded');
 
-const favoritesStore = new FavoritesStore();
+let favoritesStore: FavoritesStore;
 
 const observer = new MutationObserver((mutations) => {
   const bemDialogAddMutation = find(mutations, (mutation: MutationRecord) => {
@@ -63,9 +63,14 @@ const observer = new MutationObserver((mutations) => {
   });
 });
 
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
+bemInitPromise.then(() => {
+  favoritesStore = new FavoritesStore();
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+}, (err) => {
+  console.warn('BerryEmote Favorites failed to load');
 });
 
 export function dispose() {
@@ -159,15 +164,14 @@ function openFavsDialog() {
     return false;
   });
 
-  favoritesStore.getFavorites().then((favorites) => {
-    forEach(favorites, (favorite) => {
-      const $emote = $('<span/>')
-        .css('margin', '2px')
-        .append(Bem.getEmoteHtml(favorite));
-      Bem.postEmoteEffects($emote, true);
-      results.append($emote);
-    });
-
-    favsDialogContent.window.center();
+  const favorites = favoritesStore.getFavorites();
+  forEach(favorites, (favorite) => {
+    const $emote = $('<span/>')
+      .css('margin', '2px')
+      .append(Bem.getEmoteHtml(favorite));
+    Bem.postEmoteEffects($emote, true);
+    results.append($emote);
   });
+
+  favsDialogContent.window.center();
 }
