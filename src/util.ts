@@ -15,7 +15,7 @@ function getBemInitPromise(): Promise<Bem.Emote[]> {
         reject(new Error('Max waiting iterations reached. Is Berrymotes installed?'));
       }
 
-      if (Bem && typeof Bem.emotes !== 'undefined') {
+      if (typeof Bem.emotes !== 'undefined') {
         clearInterval(intervalId);
         resolve(Bem.emotes);
       }

@@ -20,7 +20,7 @@ var bemfIntervalId = setInterval(function() {
     console.warn('Berry Emotes not enabled or did not load fast enough. Giving up.');
   }
 
-  if (Bem === undefined) {
+  if (typeof Bem === 'undefined') {
     return;
   }
 
