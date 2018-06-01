@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name       BEMFavorites
-// @version    0.6
+// @version    0.7
 // @author     Squirrel623
 // @description  Add a favorites section to Berryemotes
 // @match      http://www.berrytube.tv/*
@@ -26,10 +26,10 @@ var bemfIntervalId = setInterval(function() {
   clearInterval(bemfIntervalId);
 
   // Promise polyfill for those poor souls using IE
-  var bemfScript=document.createElement('script');
-  bemfScript.setAttribute("type","text/javascript");
-  bemfScript.setAttribute("src", "https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js");
-  document.head.appendChild(bemfScript);
+  var polyfillScript=document.createElement('script');
+  polyfillScript.setAttribute("type","text/javascript");
+  polyfillScript.setAttribute("src", "https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js");
+  document.head.appendChild(polyfillScript);
 
   var bemfScript=document.createElement('script');
   bemfScript.setAttribute("type","text/javascript");
