@@ -1,6 +1,5 @@
-import Bem from 'bem';
 
-function getBemInitPromise(): Promise<Bem.Emote[]> {
+function getBemInitPromise(): Promise<Emote[]> {
   const maxIterations = 200;
   let iterations = 0;
 

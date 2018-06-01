@@ -1,11 +1,5 @@
 {
-  "plugins": ["lodash"],
   "presets": [
-    ["babel-preset-env", {
-        "targets": {
-          "browsers": ["defaults"]
-        }
-      }
-    ]
+    ["babel-preset-es2015"]
   ]
 }

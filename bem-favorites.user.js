@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name       BEMFavorites
-// @version    0.5
+// @version    0.6
 // @author     Squirrel623
 // @description  Add a favorites section to Berryemotes
 // @match      http://www.berrytube.tv/*
@@ -8,8 +8,7 @@
 // @updateURL  https://squirrel623.github.io/BEMFavorites/bem-favorites.user.js
 // ==/UserScript==
 
-// The script we are trying to load uses webpack that shims out Bem. It needs the global
-// Bem object to be created before the script it actually loaded
+// Let's make sure BEM is loaded
 var bemfMaxIterations = 200;
 var bemfIteration = 0;
 
@@ -25,6 +24,13 @@ var bemfIntervalId = setInterval(function() {
   }
 
   clearInterval(bemfIntervalId);
+
+  // Promise polyfill for those poor souls using IE
+  var bemfScript=document.createElement('script');
+  bemfScript.setAttribute("type","text/javascript");
+  bemfScript.setAttribute("src", "https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js");
+  document.head.appendChild(bemfScript);
+
   var bemfScript=document.createElement('script');
   bemfScript.setAttribute("type","text/javascript");
   bemfScript.setAttribute("src", "https://squirrel623.github.io/BEMFavorites/dist/bem-favorites.min.js");

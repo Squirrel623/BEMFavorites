@@ -1,15 +1,16 @@
-declare module 'bem' {
-  interface Emote {
+declare interface Emote {
     'background-image': string;
     id: number;
     names: string[];
     tags: string[];
-  }
-
-  export const emotes: Emote[];
-  export const lastFocus: JQuery|undefined;
-
-  export const getEmoteHtml: (emote: Emote) => string;
-  export const postEmoteEffects: (emote: JQuery, idunno: boolean) => void;
-  export const insertAtCursor: (elem: JQuery, text: string) => void;
 }
+
+declare const Bem: {
+  readonly emotes: Emote[];
+  readonly lastFocus: JQuery|undefined;
+
+  readonly getEmoteHtml: (emote: Emote) => string;
+  readonly postEmoteEffects: (emote: JQuery, idunno: boolean) => void;
+  readonly insertAtCursor: (elem: JQuery, text: string) => void;
+  showBerrymoteSearch: () => void;
+};

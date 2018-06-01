@@ -1,83 +1,54 @@
-import $ from 'jquery';
-import Bem from 'bem';
-import find from 'lodash-es/find';
-import filter from 'lodash-es/filter';
-import forEach from 'lodash-es/forEach';
-
 import { FavoritesStore } from './favorites-store';
 import { createSingleButtonContextMenu } from './util';
 import { createFavoritesDialog } from './bem-favorites-dialog';
+import { forEach } from './my-lodash';
 
 let favoritesStore: FavoritesStore;
 
 export function StartBemFavorites() {
   favoritesStore = new FavoritesStore();
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
+
+  const originalShowBerrymoteSearch = Bem.showBerrymoteSearch;
+
+  // tslint:disable-next-line:only-arrow-functions
+  Bem.showBerrymoteSearch = function() {
+    originalShowBerrymoteSearch.apply(this, arguments);
+    onBerryEmotesDialogOpened();
+  };
 
   return () => {
-    observer.disconnect();
+    Bem.showBerrymoteSearch = originalShowBerrymoteSearch;
   };
 }
-
-const observer = new MutationObserver((mutations) => {
-  const bemDialogAddMutation = find(mutations, (mutation: MutationRecord) => {
-    return mutation.type === 'childList' &&
-      mutation.addedNodes.length === 1 &&
-      (mutation.addedNodes[0] as HTMLElement).className === 'berrymotes_search_results';
-  });
-
-  const bemDialogEmoteMutations = filter(mutations, (mutation: MutationRecord) => {
-    return mutation.type === 'childList' &&
-      mutation.addedNodes.length === 1 &&
-      (mutation.target as HTMLElement).className === 'berrymotes_search_results' &&
-      mutation.addedNodes[0].childNodes.length === 1 &&
-      (mutation.addedNodes[0].childNodes[0] as HTMLElement).className === 'berryemote';
-  });
-
-  if (bemDialogAddMutation !== undefined) {
-    onBerryEmotesDialogOpened();
-  }
-
-  if (bemDialogEmoteMutations.length > 0) {
-    onBerryEmotesResultsPopulated(bemDialogEmoteMutations);
-  }
-});
 
 function onBerryEmotesDialogOpened() {
   modifyBemSearchInput();
   addFavsLink();
+  hijackBemEmoteContextMenu();
 }
 
-function onBerryEmotesResultsPopulated(mutations: MutationRecord[]) {
-  forEach(mutations, (mutation) => {
-    const emoteElement = (mutation.addedNodes[0].childNodes[0] as HTMLElement);
-    const possibleEmoteId = emoteElement.getAttribute('emote_id');
+function hijackBemEmoteContextMenu() {
+  const bemResultsElement = getBemDialog().find('.berrymotes_search_results');
 
-    if (possibleEmoteId === null) {
-      return;
-    }
-    const emoteId = parseInt(possibleEmoteId, 10);
+  bemResultsElement.on('contextmenu', '.berryemote', (event) => {
+    const $emote = $(event.target);
+    const emoteId = parseInt($emote.attr('emote_id'), 10);
 
-    $(emoteElement).contextmenu((event) => {
-      const onClick = () => {
-        favoritesStore.addEmote(emoteId);
+    const onClick = () => {
+      favoritesStore.addEmote(emoteId);
 
-        return true;
-      };
+      return true;
+    };
 
-      createSingleButtonContextMenu({
-        uid: 'bemAddFavorite',
-        top: event.pageY,
-        left: event.pageX,
-        text: 'Add To Favorites',
-        onClick,
-      });
-
-      return false;
+    createSingleButtonContextMenu({
+      uid: 'bemAddFavorite',
+      top: event.pageY,
+      left: event.pageX,
+      text: 'Add To Favorites',
+      onClick,
     });
+
+    return false;
   });
 }
 

@@ -1,13 +1,6 @@
-import $ from 'jquery';
-import Bem from 'bem';
-import find from 'lodash-es/find';
-import filter from 'lodash-es/filter';
-import includes from 'lodash-es/includes';
-import remove from 'lodash-es/remove';
-import forEach from 'lodash-es/foreach';
-
 import { FavoritesStore } from './favorites-store';
 import { createSingleButtonContextMenu, bemInitPromise } from './util';
+import { remove, forEach } from './my-lodash';
 
 function showResults({resultsElement, favoritesStore, start, end}: {
   resultsElement: JQuery,

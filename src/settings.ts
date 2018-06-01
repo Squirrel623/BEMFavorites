@@ -5,7 +5,11 @@ export function get<T>(key: string): T|null {
     return null;
   }
 
-  return JSON.parse(item);
+  try {
+    return JSON.parse(item);
+  } catch {
+    return null;
+  }
 }
 
 export function set<T>(key: string, item: T) {

@@ -1,24 +1,14 @@
-import Bem from 'bem';
-import $ from 'jquery';
-
-import isArray from 'lodash-es/isArray';
-import filter from 'lodash-es/filter';
-import forEach from 'lodash-es/forEach';
-import map from 'lodash-es/map';
-import find from 'lodash-es/find';
-import remove from 'lodash-es/remove';
-
+import { find, remove, forEach, map, every, isArray } from './my-lodash';
 import { get, set, clear } from './settings';
-import { every } from 'lodash-es';
 
 const favoritesStorageKey = 'bemFavorites';
 
 type SerializedFavorites = string[][];
 
-function getNameToEmoteIndexMap(emotes: Bem.Emote[]): {[index: string]: number} {
+function getNameToEmoteIndexMap(emotes: Emote[]): {[index: string]: number} {
   const emoteMap: {[index: string]: number} = {};
 
-  forEach(emotes, (emote: Bem.Emote) => {
+  forEach(emotes, (emote: Emote) => {
     forEach(emote.names, (name) => {
       emoteMap[name] = emote.id;
     });
@@ -33,7 +23,7 @@ function isSerializedInputGood(input: any): input is SerializedFavorites {
 }
 
 export class FavoritesStore {
-  private favoriteEmotes!: Bem.Emote[];
+  private favoriteEmotes!: Emote[];
 
   constructor() {
     if (!Bem || !Bem.emotes) {
@@ -52,12 +42,12 @@ export class FavoritesStore {
     this.deserializeInput(serializedFavorites);
   }
 
-  public getFavorites(): ReadonlyArray<Readonly<Bem.Emote>> {
+  public getFavorites(): ReadonlyArray<Readonly<Emote>> {
     return this.favoriteEmotes;
   }
 
   public addEmote(emoteId: number): boolean {
-    if (find(this.favoriteEmotes, (favoriteEmote: Bem.Emote) => favoriteEmote.id === emoteId)) {
+    if (find(this.favoriteEmotes, (favoriteEmote: Emote) => favoriteEmote.id === emoteId)) {
       return false;
     }
 
@@ -80,6 +70,7 @@ export class FavoritesStore {
   }
 
   public importFavorites(): Promise<boolean> {
+    console.log('Importing favorites');
     const importDialogContents = $('body').dialogWindow({
       title: 'Import Favorites',
       uid: 'bemfImportFavorites',
@@ -168,10 +159,10 @@ export class FavoritesStore {
 
   private deserializeInput(serializedFavorites: SerializedFavorites) {
     const nameToEmoteIndexMap = getNameToEmoteIndexMap(Bem.emotes);
-    const favorites: Bem.Emote[] = [];
+    const favorites: Emote[] = [];
 
     forEach(serializedFavorites, (emoteNames) => {
-      let emote: Bem.Emote|undefined;
+      let emote: Emote|undefined;
       for (let i = 0; i < emoteNames.length; i++) {
         emote = Bem.emotes[nameToEmoteIndexMap[emoteNames[i]]];
         if (emote !== undefined) {
