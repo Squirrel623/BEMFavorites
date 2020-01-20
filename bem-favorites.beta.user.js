@@ -50,6 +50,6 @@ var bemfIntervalId = setInterval(function() {
 
   var bemfScript=document.createElement('script');
   bemfScript.setAttribute("type","text/javascript");
-  bemfScript.setAttribute("src", "https://squirrel623.github.io/BEMFavorites/dist/bem-favorites.min.js");
+  bemfScript.setAttribute("src", "http://127.0.0.1:5500/dist/bundle.js");
   document.head.appendChild(bemfScript);
 }, 100);
