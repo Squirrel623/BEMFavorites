@@ -36,7 +36,7 @@ This works just like Berrymotes - make sure your chat input had focus before cli
 
 ### Exporting
 
-To export your current favorites, select the `Export` item in the favorites dialog. This will save your favorites to a `bem-favorites.bemf` file in your default download location.
+To export your current favorites, select the `Export` item in the favorites dialog. This will save your favorites to a `bem-favorites.bemf` file in your default download location. (Idk why I didn't just use `.json` so sorry about that. I'm too lazy make a commit for that)
 
 ### Importing
 
